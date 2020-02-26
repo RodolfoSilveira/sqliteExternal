@@ -1,8 +1,9 @@
 import React, {useEffect} from 'react';
 
-import {Text, View} from 'react-native';
-// import RNFS from 'react-native-fs';
+import {Text, View, PermissionsAndroid} from 'react-native';
+import RNFS from 'react-native-fs';
 import SQLite from 'react-native-sqlite-storage';
+import RNFetchBlob from 'rn-fetch-blob';
 
 const Main = () => {
   useEffect(() => {
@@ -21,13 +22,57 @@ const Main = () => {
     console.log('Database OPENED');
   }
 
-  function onDBConection() {
-    // const path = RNFS.DownloadDirectoryPath;
+  async function onDBConection() {
+    let dirs = RNFetchBlob.fs.dirs.DownloadDir;
+    console.log(dirs + '/www');
+    await RNFetchBlob.fs.exists(dirs + '/www').then(exist => {
+      console.log(`file ${exist ? '' : 'not'} exists`);
+      if (!exist) {
+        try {
+          const fs = RNFetchBlob.fs;
+
+          RNFetchBlob.fs.mkdir(dirs + '/www').then(() => {
+            console.log('sucess');
+          });
+        } catch (e) {
+          console.log('error');
+        }
+      }
+    });
+    // const path = `${RNFS.DownloadDirectoryPath}/pasta_teste`;
+
     // console.log(path);
+
+    // const granted = await PermissionsAndroid.request(
+    //   PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+    //   {
+    //     title: 'Grant SD card access',
+    //     message: 'We need access',
+    //   },
+    // );
+    // if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+    //   console.log('Permission OK');
+    // } else {
+    //   console.log('Permission failed');
+    // }
+    // if (await RNFS.mkdir(path)) {
+    //   console.log('Directory created');
+    // } else {
+    //   console.warn('Could not create');
+    // }
+
+    // RNFS.mkdir(path)
+    //   .then(result => {
+    //     console.log('result', result);
+    //   })
+    //   .catch(err => {
+    //     console.warn('err', err);
+    //   });
+
     const db = SQLite.openDatabase(
       {
         name: 'dbteste',
-        location: 'Documents',
+        location: 'Download',
         createFromLocation: '~www/dbteste',
       },
       successCB,
